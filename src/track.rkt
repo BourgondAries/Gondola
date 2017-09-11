@@ -25,7 +25,7 @@
 
 (define (track-position track t)
   (if (empty? track)
-    0
+    '(0 0 0)
     (let-values ([(l r) (find-surrounding-points track t)])
       (cond
         ([and (false? l) (false? r)] '(0 0 0))
