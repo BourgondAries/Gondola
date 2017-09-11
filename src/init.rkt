@@ -4,9 +4,8 @@
 
 (provide initialize)
 
-(require "glfw/glfw.rkt")
+(require "ds.rkt" "glfw/glfw.rkt")
 
 (define (initialize)
   (glfwInit)
-  (define window (glfwCreateWindow 800 600 "Gondola: The Webm: The Game: The Walking Simulator" #f #f))
-  0)
+  (initialize-data))
