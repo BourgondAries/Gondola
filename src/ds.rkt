@@ -34,3 +34,5 @@
                                     enter #f
                                     scenedata #f
                                     window (glfwCreateWindow 800 600 "Gondola" #f #f)))
+
+(define frame-time-ms 1000/60)
