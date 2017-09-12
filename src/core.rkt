@@ -17,9 +17,10 @@
     [(_ state (~seq data:id) ...)
      (with-syntax ([(glfw* ...) (for/list ([a (syntax-e #'(data ...))]) (format-id #'s "GLFW_KEY_~a" a))]
                    [(data* ...) (for/list ([a (syntax-e #'(data ...))]) (format-id #'s "data-~a-lens" a))])
-       #'(~>
-           state
-           (lens-transform data* _ (lambda (x) (glfwGetKey (data-window state) glfw*))) ...))]))
+       #'(let ([state* state]) ; To avoid multiple evaluations of state
+           (~>
+             state*
+             (lens-transform data* _ (lambda (x) (glfwGetKey (data-window state*) glfw*))) ...)))]))
 
 (define (limit-frames-per-second state)
   (lens-transform data-time-lens state
