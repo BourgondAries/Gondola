@@ -2,7 +2,7 @@
 
 (provide core#io)
 
-(require lens opengl opengl/util threading "ds.rkt" "glfw/glfw.rkt" "init.rkt" "logger.rkt" "util.rkt" (for-syntax racket/syntax syntax/parse))
+(require ffi/vector lens opengl opengl/util threading "ds.rkt" "glfw/glfw.rkt" "init.rkt" "logger.rkt" "util.rkt" (for-syntax racket/syntax syntax/parse))
 
 (define (core#io state)
   (if (null? state)
@@ -33,15 +33,17 @@
                       (current-inexact-milliseconds)))))
 
 (define (load-texture-to-load state)
-  (info (data-texture-to-load state))
   (if (and (not (null? (data-texture-to-load state)))
            (not (equal? (texture-name (data-active-texture state)) (data-texture-to-load state))))
     (~>
       (lens-transform data-active-texture-lens state
                       (lambda (x)
                         (when (not (null? (texture-identifier x)))
-                          (glDeleteTextures (list (texture-identifier x))))
-                        (texture (data-texture-to-load state) (load-texture (data-texture-to-load state))))))
+                          (glDeleteTextures 1 (u32vector (texture-identifier x))))
+                        (texture (data-texture-to-load state) (load-texture (data-texture-to-load state)))))
+      (lens-effect data-active-texture-lens _ (lambda (x)
+                                                (let ([id (texture-identifier x)])
+                                                  (glBindTexture GL_TEXTURE_2D id)))))
     state))
 
 (define (check-if-new-tex state)
@@ -56,11 +58,16 @@
     [(and (not (null? (data-ESCAPE state))) (= (data-ESCAPE state) 1)) null]
     [else (glfwPollEvents)
           (info state)
-          (glClear GL_COLOR_BUFFER_BIT)
+          (glClear (bitwise-ior GL_COLOR_BUFFER_BIT GL_DEPTH_BUFFER_BIT))
           (~>
             state
             (capture-key-states W A S D UP LEFT DOWN RIGHT SPACE ESCAPE ENTER)
             check-if-new-tex
             load-texture-to-load
+            ((lambda (x)
+               (glEnableVertexAttribArray 0)
+               (glVertexAttribPointer 0 3 GL_FLOAT #f 0 0)
+               (glDrawArrays GL_TRIANGLES 0 3)
+               x))
             (lens-effect data-window-lens _ (lambda~> glfwSwapBuffers))
             limit-frames-per-second)]))
