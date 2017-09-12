@@ -32,19 +32,22 @@
                         (sleep (/ margin 1000)))
                       (current-inexact-milliseconds)))))
 
-(define (load-new-texture state)
-  (info (data-new-texture state))
-  (if (not (null? (data-new-texture state)))
+(define (load-texture-to-load state)
+  (info (data-texture-to-load state))
+  (if (and (not (null? (data-texture-to-load state)))
+           (not (equal? (texture-name (data-active-texture state)) (data-texture-to-load state))))
     (~>
-      (lens-transform data-scenedata-lens state (lambda _ (load-texture (data-new-texture state))))
-      (lens-set data-new-texture-lens _ null))
+      (lens-transform data-active-texture-lens state
+                      (lambda (x)
+                        (when (not (null? (texture-identifier x)))
+                          (glDeleteTextures (list (texture-identifier x))))
+                        (texture (data-texture-to-load state) (load-texture (data-texture-to-load state))))))
     state))
 
 (define (check-if-new-tex state)
   (if (= (data-W state) 1)
     (~>
-      (lens-set data-new-texture-lens state "scenes/initial/cliff_house.png")
-      (lens-set data-W-lens _ 0))
+      (lens-set data-texture-to-load-lens state "scenes/initial/cliff_house.png"))
     state))
 
 (define (transfer#io state)
@@ -58,6 +61,6 @@
             state
             (capture-key-states W A S D UP LEFT DOWN RIGHT SPACE ESCAPE ENTER)
             check-if-new-tex
-            load-new-texture
+            load-texture-to-load
             (lens-effect data-window-lens _ (lambda~> glfwSwapBuffers))
             limit-frames-per-second)]))

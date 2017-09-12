@@ -14,6 +14,7 @@
                                        (current-inexact-milliseconds)))
     (lens-transform data-window-lens _ (lambda _
                                          (glfwCreateWindow 800 600 "Gondola" #f #f)))
+    (lens-set data-active-texture-lens _ texture-null)
     (lens-effect data-window-lens _ (lambda (x)
                                       (glfwSetInputMode x GLFW_STICKY_KEYS 1)
                                       (glfwMakeContextCurrent x)))))

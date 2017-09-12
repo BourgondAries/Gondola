@@ -15,7 +15,8 @@
 ;; Structures
 (skeltal data data-null (time
                          W A S D UP LEFT DOWN RIGHT SPACE ESCAPE ENTER
-                         new-texture scenedata window))
+                         texture-to-load active-texture window))
 
 (skeltal gondola gondola-null (t x y z))
 
+(skeltal texture texture-null (name identifier))
