@@ -1,21 +1,21 @@
 ; ds - Data Structures
 
-; This file contains the data structures
-; used in the program in addition to the initialization
-; function.
-
-; The data structure most useful to us is one that captures all state. What's all the state then? First we need our window handle:
+; This file contains the data structures used throughout the program.
+; Various constants will also be defined here.
 
 #lang racket
 
 (provide (all-defined-out))
 
-(require lens (for-syntax syntax/parse) "util.rkt" "glfw/glfw.rkt")
+(require "util.rkt")
 
-(struct/lens gondola (t) #:prefab)
+;; Constants
+(define frame-time-ms 1000/60)
 
+;; Structures
 (skeltal data data-null (time
                          W A S D UP LEFT DOWN RIGHT SPACE ESCAPE ENTER
-                         scenedata window))
+                         new-texture scenedata window))
 
-(define frame-time-ms 1000/60)
+(skeltal gondola gondola-null (t x y z))
+

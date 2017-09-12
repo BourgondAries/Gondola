@@ -32,6 +32,21 @@
                         (sleep (/ margin 1000)))
                       (current-inexact-milliseconds)))))
 
+(define (load-new-texture state)
+  (info (data-new-texture state))
+  (if (not (null? (data-new-texture state)))
+    (~>
+      (lens-transform data-scenedata-lens state (lambda _ (load-texture (data-new-texture state))))
+      (lens-set data-new-texture-lens _ null))
+    state))
+
+(define (check-if-new-tex state)
+  (if (= (data-W state) 1)
+    (~>
+      (lens-set data-new-texture-lens state "scenes/initial/cliff_house.png")
+      (lens-set data-W-lens _ 0))
+    state))
+
 (define (transfer#io state)
   (cond
     [(= (glfwWindowShouldClose (data-window state)) 1) null]
@@ -42,6 +57,7 @@
           (~>
             state
             (capture-key-states W A S D UP LEFT DOWN RIGHT SPACE ESCAPE ENTER)
-            (lens-effect data-window-lens _ (lambda (x)
-                                              (glfwSwapBuffers x)))
+            check-if-new-tex
+            load-new-texture
+            (lens-effect data-window-lens _ (lambda~> glfwSwapBuffers))
             limit-frames-per-second)]))
