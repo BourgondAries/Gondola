@@ -14,8 +14,8 @@
 
 (define-syntax (capture-key-states stx)
   (syntax-parse stx
-    [(_ state (~seq data:id glfw:id) ...)
-     (with-syntax ([(glfw* ...) (for/list ([a (syntax-e #'(glfw ...))]) (format-id #'s "GLFW_KEY_~a" a))]
+    [(_ state (~seq data:id) ...)
+     (with-syntax ([(glfw* ...) (for/list ([a (syntax-e #'(data ...))]) (format-id #'s "GLFW_KEY_~a" a))]
                    [(data* ...) (for/list ([a (syntax-e #'(data ...))]) (format-id #'s "data-~a-lens" a))])
        #'(~>
            state
@@ -34,14 +34,13 @@
 (define (transfer#io state)
   (cond
     [(= (glfwWindowShouldClose (data-window state)) 1) null]
-    [(and (not (null? (data-escape state))) (= (data-escape state) 1)) null]
+    [(and (not (null? (data-ESCAPE state))) (= (data-ESCAPE state) 1)) null]
     [else (glfwPollEvents)
           (info state)
           (glClear GL_COLOR_BUFFER_BIT)
           (~>
             state
-            ; TODO Macroize duplicates away
-            (capture-key-states w W a A s S d D up UP left LEFT down DOWN right RIGHT space SPACE escape ESCAPE enter ENTER)
+            (capture-key-states W A S D UP LEFT DOWN RIGHT SPACE ESCAPE ENTER)
             (lens-effect data-window-lens _ (lambda (x)
                                               (glfwSwapBuffers x)))
             limit-frames-per-second)]))

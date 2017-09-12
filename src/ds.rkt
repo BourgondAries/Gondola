@@ -15,7 +15,7 @@
 (struct/lens gondola (t) #:prefab)
 
 (skeltal data data-null (time
-                         w a s d up left down right space escape enter
+                         W A S D UP LEFT DOWN RIGHT SPACE ESCAPE ENTER
                          scenedata window))
 
 (define frame-time-ms 1000/60)
