@@ -2,7 +2,7 @@
 
 (provide core#io)
 
-(require lens threading "ds.rkt" "glfw/glfw.rkt" "init.rkt" "logger.rkt" (for-syntax racket/syntax syntax/parse))
+(require lens opengl opengl/util threading "ds.rkt" "glfw/glfw.rkt" "init.rkt" "logger.rkt" (for-syntax racket/syntax syntax/parse))
 
 (define (core#io state)
   (if (null? state)
@@ -21,15 +21,23 @@
            state
            (lens-transform data* _ (lambda (x) (glfwGetKey (data-window state) glfw*))) ...))]))
 
+(define (lens-effect lens data proc)
+  (lens-transform lens data proc)
+  data)
+
 (define (transfer#io state)
   (cond
     [(= (glfwWindowShouldClose (data-window state)) 1) null]
+    [(= (data-escape state) 1) null]
     [else (glfwPollEvents)
           (info state)
+          (glClear GL_COLOR_BUFFER_BIT)
           (~>
             state
             ; TODO Macroize duplicates away
             (capture-key-states w W a A s S d D up UP left LEFT down DOWN right RIGHT space SPACE escape ESCAPE enter ENTER)
+            (lens-effect data-window-lens _ (lambda (x)
+                                              (glfwSwapBuffers x)))
             (lens-transform data-time-lens _
                             (lambda (x)
                               (info x)

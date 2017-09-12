@@ -20,6 +20,8 @@
        (define (initializer-name)
          (structure-name initial ...)))]))
 
+(struct/lens gondola (t) #:prefab)
+
 (initial-data data initialize-data (time (current-inexact-milliseconds)
                                     w #f
                                     a #f
@@ -30,7 +32,7 @@
                                     down #f
                                     right #f
                                     space #f
-                                    escape #f
+                                    escape 0
                                     enter #f
                                     scenedata #f
                                     window (glfwCreateWindow 800 600 "Gondola" #f #f)))
