@@ -10,31 +10,12 @@
 
 (provide (all-defined-out))
 
-(require lens (for-syntax syntax/parse) "glfw/glfw.rkt")
-
-(define-syntax (initial-data stx)
-  (syntax-parse stx
-    [(_ structure-name:id initializer-name:id ((~seq name:id initial:expr) ...))
-     #'(begin
-       (struct/lens structure-name (name ...) #:prefab)
-       (define (initializer-name)
-         (structure-name initial ...)))]))
+(require lens (for-syntax syntax/parse) "util.rkt" "glfw/glfw.rkt")
 
 (struct/lens gondola (t) #:prefab)
 
-(initial-data data initialize-data (time (current-inexact-milliseconds)
-                                    w #f
-                                    a #f
-                                    s #f
-                                    d #f
-                                    up #f
-                                    left #f
-                                    down #f
-                                    right #f
-                                    space #f
-                                    escape 0
-                                    enter #f
-                                    scenedata #f
-                                    window (glfwCreateWindow 800 600 "Gondola" #f #f)))
+(skeltal data data-null (time
+                         w a s d up left down right space escape enter
+                         scenedata window))
 
 (define frame-time-ms 1000/60)

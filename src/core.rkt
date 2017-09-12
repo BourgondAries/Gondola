@@ -2,7 +2,7 @@
 
 (provide core#io)
 
-(require lens opengl opengl/util threading "ds.rkt" "glfw/glfw.rkt" "init.rkt" "logger.rkt" (for-syntax racket/syntax syntax/parse))
+(require lens opengl opengl/util threading "ds.rkt" "glfw/glfw.rkt" "init.rkt" "logger.rkt" "util.rkt" (for-syntax racket/syntax syntax/parse))
 
 (define (core#io state)
   (if (null? state)
@@ -21,14 +21,20 @@
            state
            (lens-transform data* _ (lambda (x) (glfwGetKey (data-window state) glfw*))) ...))]))
 
-(define (lens-effect lens data proc)
-  (lens-transform lens data proc)
-  data)
+(define (limit-frames-per-second state)
+  (lens-transform data-time-lens state
+                  (lambda (x)
+                    (let* ([current (current-inexact-milliseconds)]
+                           [difference (- current x)]
+                           [margin (- frame-time-ms difference)])
+                      (when (> margin 0)
+                        (sleep (/ margin 1000)))
+                      (current-inexact-milliseconds)))))
 
 (define (transfer#io state)
   (cond
     [(= (glfwWindowShouldClose (data-window state)) 1) null]
-    [(= (data-escape state) 1) null]
+    [(and (not (null? (data-escape state))) (= (data-escape state) 1)) null]
     [else (glfwPollEvents)
           (info state)
           (glClear GL_COLOR_BUFFER_BIT)
@@ -38,12 +44,4 @@
             (capture-key-states w W a A s S d D up UP left LEFT down DOWN right RIGHT space SPACE escape ESCAPE enter ENTER)
             (lens-effect data-window-lens _ (lambda (x)
                                               (glfwSwapBuffers x)))
-            (lens-transform data-time-lens _
-                            (lambda (x)
-                              (info x)
-                              (let* ([current (current-inexact-milliseconds)]
-                                     [difference (- current x)]
-                                     [margin (- frame-time-ms difference)])
-                                (when (> margin 0)
-                                  (sleep (/ margin 1000)))
-                                (current-inexact-milliseconds)))))]))
+            limit-frames-per-second)]))
