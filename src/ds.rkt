@@ -18,7 +18,7 @@
                          W A S D UP LEFT DOWN RIGHT SPACE ESCAPE ENTER
                          texture-to-load active-texture window
                          shader-vertex shader-fragment shader-program
-                         texture-vertices vao vbo triangle))
+                         texture-vertices vao vbo triangle gondola))
 
 (skeltal gondola gondola-null (t x y z))
 

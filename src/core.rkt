@@ -52,6 +52,18 @@
       (lens-set data-texture-to-load-lens state "scenes/initial/cliff_house.png"))
     state))
 
+(define (do-movement state)
+  (let ([gondola-t (lens-compose gondola-t-lens data-gondola-lens)])
+    (lens-transform gondola-t state
+                    (cond
+                      [(and (not (null? (data-A state)))
+                            (= (data-A state) 1))
+                       sub1]
+                      [(and (not (null? (data-D state)))
+                            (= (data-D state) 1))
+                       add1]
+                      [else identity]))))
+
 (define (transfer#io state)
   (cond
     [(= (glfwWindowShouldClose (data-window state)) 1) null]
@@ -62,6 +74,7 @@
           (~>
             state
             (capture-key-states W A S D UP LEFT DOWN RIGHT SPACE ESCAPE ENTER)
+            do-movement
             check-if-new-tex
             load-texture-to-load
             ((lambda (x)

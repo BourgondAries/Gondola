@@ -39,6 +39,7 @@
     (lens-effect data-vbo-lens _ (lambda (x) (glBindBuffer GL_ARRAY_BUFFER (first (u32vector->list x)))))
 
     (lens-effect data-triangle-lens _ (lambda (x) (glBufferData GL_ARRAY_BUFFER (* float32-size (f32vector-length x)) x GL_STATIC_DRAW)))
+    (lens-set data-gondola-lens _ (gondola 0 0 0 0))
     ((lambda (x) (glEnableVertexAttribArray 0) x))
     ((lambda (x) (play (rs-read "scenes/initial/housemusicpart1.wav")) x))
     ))
